@@ -1,0 +1,16 @@
+{
+  "name": "jasper-mate-utils",
+  "version": "1.0.0",
+  "description": "Local IO API for ControlMate (Cockpit frontend)",
+  "scripts": {
+    "test": "go test ./...",
+    "build": "npm run build-go",
+    "build-go": "npm run build-go:amd64 && npm run build-go:arm64",
+    "build-go:amd64": "GOOS=linux GOARCH=amd64 go build -o ./release/jm-utils-linux-amd64 main.go",
+    "build-go:arm64": "GOOS=linux GOARCH=arm64 go build -o ./release/jm-utils-linux-arm64 main.go",
+    "dev": "go run main.go",
+    "clean": "rm -rf ./build && rm -rf ./release",
+    "postbuild": "echo 'Build complete! Binaries: ./release/jm-utils-linux-amd64 and ./release/jm-utils-linux-arm64'",
+    "publish": "node scripts/publish.js"
+  }
+}
