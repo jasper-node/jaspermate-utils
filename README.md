@@ -1,12 +1,11 @@
 # JasperMate Utils
 
-API-only backend for JasperMate IO. The frontend is provided by the **Cockpit** application (see `jaspermate-io/` package).
+API-only backend for JasperMate IO. The frontend uses [Cockpit](https://github.com/jasper-node/jaspermate-io-cockpit-plugin).
 
 ## Features
 
 - **JasperMate IO API**: REST API for JasperMate IO cards (discovery, read state, write DO/AO, reboot)
 - **TCP server**: Optional TCP server on port 9081 for external automation clients
-- **Cockpit frontend**: Use the `jaspermate-io` Cockpit package for the web UI
 
 ## Requirements
 
@@ -36,7 +35,6 @@ The service listens on **port 9080** (HTTP API) and **port 9081** (TCP for autom
 ```
 
 - **API**: `http://localhost:9080`
-- **Cockpit**: Install the `jaspermate-io` package from `jaspermate-io/` and open it in Cockpit; it will call the API on `127.0.0.1:9080`.
 
 ### API Endpoints
 
@@ -52,32 +50,19 @@ The service listens on **port 9080** (HTTP API) and **port 9081** (TCP for autom
 
 When a TCP client is connected to port 9081, write operations from the HTTP API are disabled.
 
-## File Structure
+## Install
 
+Install or update the binary as a systemd service:
+
+```bash
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
 ```
-jaspermate-utils/
-├── main.go                 # API server (jaspermate-io only)
-├── jaspermate-io/          # Cockpit package (frontend)
-│   ├── manifest.json
-│   ├── index.html
-│   ├── jaspermate-io.js
-│   └── jaspermate-io.css
-├── src/server/
-│   ├── config/             # Config (e.g. TCP serve externally)
-│   ├── jaspermateio/            # JasperMate IO manager, port, models
-│   └── tcp/                # TCP server for automation
-├── scripts/
-│   ├── install_to_linux.sh
-│   └── publish.js
-├── go.mod
-└── package.json
-```
+
+Supports Linux amd64 and arm64. The service runs as `jm-utils` and listens on port 9080 (HTTP) and 9081 (TCP).
 
 ## Deployment
 
 - Single Go binary; no embedded HTML/CSS/JS.
-- Frontend: deploy the `jaspermate-io/` directory as a Cockpit package.
-- For systemd install, use `scripts/install_to_linux.sh` (installs binary and jm-utils service).
 
 ## Uninstallation
 
