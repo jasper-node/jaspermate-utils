@@ -55,7 +55,7 @@ When a TCP client is connected to port 9081, write operations from the HTTP API 
 ## File Structure
 
 ```
-jasper-mate-utils/
+jaspermate-utils/
 ├── main.go                 # API server (jaspermate-io only)
 ├── jaspermate-io/          # Cockpit package (frontend)
 │   ├── manifest.json
@@ -84,7 +84,7 @@ jasper-mate-utils/
 If installed via the install script:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/controlx-io/jasper-mate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -s -- uninstall
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -s -- uninstall
 ```
 
 ## License

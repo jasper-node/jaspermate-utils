@@ -17,8 +17,8 @@ yarn-error.log*
 build/
 dist/
 release/
-jasper-mate-utils
-jasper-mate-utils-linux-arm64
+jaspermate-utils
+jaspermate-utils-linux-arm64
 tmp/
 
 # IDE files

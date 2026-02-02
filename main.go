@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"jasper-mate-utils/src/server/config"
-	"jasper-mate-utils/src/server/localio"
-	"jasper-mate-utils/src/server/tcp"
+	"jaspermate-utils/src/server/config"
+	"jaspermate-utils/src/server/localio"
+	"jaspermate-utils/src/server/tcp"
 
 	"github.com/gorilla/mux"
 )

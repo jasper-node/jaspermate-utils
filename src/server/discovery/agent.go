@@ -3,8 +3,8 @@ package discovery
 import (
 	"sync"
 
-	"jasper-mate-utils/src/server"
-	"jasper-mate-utils/src/server/config"
+	"jaspermate-utils/src/server"
+	"jaspermate-utils/src/server/config"
 )
 
 var (

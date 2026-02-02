@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"jasper-mate-utils/src/server/localio"
+	"jaspermate-utils/src/server/localio"
 )
 
 // TCPServer manages TCP connections for JasperMate IO card automation

@@ -84,14 +84,14 @@ Network and resource management utility for JasperMate PC.
 
 ### Installation
 1. Download the appropriate binary for your architecture:
-   - \`cm-utils-linux-amd64\` for x86_64 systems
-   - \`cm-utils-linux-arm64\` for ARM64 systems
+   - \`jm-utils-linux-amd64\` for x86_64 systems
+   - \`jm-utils-linux-arm64\` for ARM64 systems
 2. Make it executable: chmod +x \`jm-utils-linux-*\`
 3. Run: \`sudo ./jm-utils-linux-*\`
 
 ### Linux Installation (Recommended)
 \`\`\`bash
-curl -sL https://raw.githubusercontent.com/jasper-node/jasper-mate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
 \`\`\`
 
 The application will start on port 9080.`;
@@ -137,7 +137,7 @@ The application will start on port 9080.`;
   }
 
   console.log(`✅ Successfully released version ${currentVersion}!`);
-  console.log(`🔗 View release: https://github.com/controlx-io/jasper-mate-utils/releases/tag/${tagName}`);
+  console.log(`🔗 View release: https://github.com/jasper-node/jaspermate-utils/releases/tag/${tagName}`);
 
 } catch (error) {
   console.error('❌ Publish failed:', error.message);

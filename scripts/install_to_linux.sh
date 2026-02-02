@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # ==============================================================================
-# jasper-mate-utils_install.sh
+# jaspermate-utils_install.sh
 # v.1.2.0-1
 #
 # Installs, updates, or uninstalls the JasperMate Utils (jm-utils) binary as a systemd service.
 #
 # Usage (Install/Update):
-#   curl -sL https://raw.githubusercontent.com/controlx-io/jasper-mate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
+#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
 #
 # Usage (Uninstall):
-#   curl -sL https://raw.githubusercontent.com/controlx-io/jasper-mate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -s -- uninstall
+#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -s -- uninstall
 #
 # ==============================================================================
 
@@ -21,7 +21,7 @@ APP_DIR="/var/lib/jm-utils"
 BINARY_PATH="${APP_DIR}/jm-utils"
 SYMLINK_PATH="/usr/local/bin/jm-utils"
 VERSION_FILE="${APP_DIR}/.version"
-GITHUB_REPO="controlx-io/jasper-mate-utils"
+GITHUB_REPO="jasper-node/jaspermate-utils"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 
 # --- Color Definitions ---
@@ -301,7 +301,7 @@ chown -R "${INSTALL_USER}:${INSTALL_USER}" "${APP_DIR}"
 info "Creating systemd service file..."
 cat << EOF > "${SERVICE_FILE}"
 [Unit]
-Description=CM Utils Service
+Description=JasperMate Utils Service
 After=network.target
 
 [Service]
@@ -367,7 +367,7 @@ systemctl enable "${SERVICE_NAME}"
 systemctl start "${SERVICE_NAME}"
 
 echo
-echo -e "${C_GREEN}✔ ControlMate Utils was installed and started successfully!${C_RESET}"
+echo -e "${C_GREEN}✔ JasperMate Utils was installed and started successfully!${C_RESET}"
 echo
 info "You can manage the service with these commands:"
 echo -e "  - Check status: ${C_YELLOW}systemctl status ${SERVICE_NAME}${C_RESET}"

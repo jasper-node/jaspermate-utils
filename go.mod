@@ -1,4 +1,4 @@
-module jasper-mate-utils
+module jaspermate-utils
 
 go 1.25
 
