@@ -21,17 +21,17 @@ func TestHandlers(t *testing.T) {
 		if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
 			t.Fatalf("Failed to decode response: %v", err)
 		}
-		if out["service"] != "local-io-api" {
-			t.Errorf("Expected service local-io-api, got %s", out["service"])
+		if out["service"] != "jaspermate-io-api" {
+			t.Errorf("Expected service jaspermate-io-api, got %s", out["service"])
 		}
 	})
 
-	t.Run("Local IO cards", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", "/api/local-io", nil)
+	t.Run("JasperMate IO cards", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/api/jaspermate-io", nil)
 		rr := httptest.NewRecorder()
 		app.getLocalIOCardsHandler(rr, req)
 		if rr.Code != http.StatusOK {
-			t.Errorf("Local IO handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
+			t.Errorf("JasperMate IO handler returned wrong status code: got %v want %v", rr.Code, http.StatusOK)
 		}
 		var out struct {
 			Cards        []interface{} `json:"cards"`

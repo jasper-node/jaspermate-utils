@@ -41,7 +41,7 @@ func (app *App) rootHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"service": "local-io-api"})
+	json.NewEncoder(w).Encode(map[string]string{"service": "jaspermate-io-api"})
 }
 
 func (app *App) rediscoverLocalIOCardsHandler(w http.ResponseWriter, r *http.Request) {
@@ -179,13 +179,13 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", app.rootHandler).Methods("GET")
-	r.HandleFunc("/api/local-io", app.getLocalIOCardsHandler).Methods("GET")
-	r.HandleFunc("/api/local-io/rediscover", app.rediscoverLocalIOCardsHandler).Methods("POST")
-	r.HandleFunc("/api/local-io/{id}/write-do", app.localIOCardHandler).Methods("POST")
-	r.HandleFunc("/api/local-io/{id}/write-ao", app.localIOCardHandler).Methods("POST")
-	r.HandleFunc("/api/local-io/{id}/write-aotype", app.localIOCardHandler).Methods("POST")
-	r.HandleFunc("/api/local-io/{id}/reboot", app.localIOCardHandler).Methods("POST")
+	r.HandleFunc("/api/jaspermate-io", app.getLocalIOCardsHandler).Methods("GET")
+	r.HandleFunc("/api/jaspermate-io/rediscover", app.rediscoverLocalIOCardsHandler).Methods("POST")
+	r.HandleFunc("/api/jaspermate-io/{id}/write-do", app.localIOCardHandler).Methods("POST")
+	r.HandleFunc("/api/jaspermate-io/{id}/write-ao", app.localIOCardHandler).Methods("POST")
+	r.HandleFunc("/api/jaspermate-io/{id}/write-aotype", app.localIOCardHandler).Methods("POST")
+	r.HandleFunc("/api/jaspermate-io/{id}/reboot", app.localIOCardHandler).Methods("POST")
 
-	fmt.Println("ControlMate Utils (local-io API) starting on :9080")
+	fmt.Println("JasperMate Utils (jaspermate-io API) starting on :9080")
 	log.Fatal(http.ListenAndServe(":9080", r))
 }

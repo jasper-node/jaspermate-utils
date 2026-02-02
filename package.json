@@ -1,7 +1,7 @@
 {
   "name": "jasper-mate-utils",
   "version": "1.0.0",
-  "description": "Local IO API for ControlMate (Cockpit frontend)",
+  "description": "IO manager for JasperMate",
   "scripts": {
     "test": "go test ./...",
     "build": "npm run build-go",

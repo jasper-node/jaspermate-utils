@@ -12,7 +12,7 @@ import (
 	"jasper-mate-utils/src/server/localio"
 )
 
-// TCPServer manages TCP connections for local IO card automation
+// TCPServer manages TCP connections for JasperMate IO card automation
 type TCPServer struct {
 	listener   net.Listener
 	clientConn *ClientConnection
