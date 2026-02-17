@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"jaspermate-utils/src/server/config"
+
 	"github.com/goburrow/modbus"
 )
 
@@ -65,6 +67,7 @@ type CardState struct {
 	AO           []float32 `json:"ao,omitempty"`
 	AOType       []string  `json:"aoType,omitempty"`
 	SerialNumber string    `json:"serialNumber,omitempty"`
+	BaudRate     int       `json:"baudRate,omitempty"`
 	Error        string    `json:"error,omitempty"`
 }
 
@@ -133,11 +136,15 @@ func defaultHandlerFactory(path string, cfg serialCfg) (ModbusHandler, error) {
 }
 
 func NewManager() *Manager {
+	baud := config.GetConfig().SerialBaud
+	if baud <= 0 {
+		baud = 115200
+	}
 	return &Manager{
 		ports:           make(map[string]*portClient),
 		cards:           make(map[string]*Card),
 		nextID:          1,
-		serial:          serialCfg{Baud: 9600, Par: "N", Stop: 1, Data: 8},
+		serial:          serialCfg{Baud: baud, Par: "N", Stop: 1, Data: 8},
 		timeout:         200 * time.Millisecond,
 		cycleDelay:      10 * time.Millisecond,
 		operationDelay:  2 * time.Millisecond,

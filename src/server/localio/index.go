@@ -12,7 +12,7 @@ func InitializeManager() *Manager {
 	discovered := 0
 	for sid := 1; sid <= maxSlave; sid++ {
 		if card, err := mgr.AddCard(portPath, byte(sid), ""); err == nil {
-			log.Printf("discovered slave %d on %s module=%s", sid, portPath, card.Module)
+			log.Printf("discovered slave %d on %s module=%s, baudrate=%d", sid, portPath, card.Module, card.Last.BaudRate)
 			discovered++
 		}
 	}

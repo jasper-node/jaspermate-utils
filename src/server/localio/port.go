@@ -182,6 +182,9 @@ func (pc *portClient) readCard(slave byte, spec ModelSpec, readAll bool) (CardSt
 	if readAll {
 		state.SerialNumber = pc.readSerialNumber()
 		time.Sleep(pc.operationDelay) // RS485 delay
+
+		state.BaudRate = pc.readBaudRate()
+		time.Sleep(pc.operationDelay) // RS485 delay
 	}
 
 	return state, nil
@@ -255,6 +258,36 @@ func (pc *portClient) writeAOType(slave byte, index int, mode string) error {
 		val = 0x0004
 	}
 	_, err := pc.client.WriteSingleRegister(uint16(0x0190+index), val)
+	if err == nil {
+		time.Sleep(pc.operationDelay) // RS485 delay
+	}
+	return err
+}
+
+// RS485 baud rate is stored in holding registers 0x0020-0x0021 (32-bit, big-endian).
+const baudRateRegAddr = 0x0020
+const baudRateRegCount = 2
+
+// readBaudRate reads the RS485 baud rate from the device (holding registers 0x0020-0x0021).
+// Returns 0 if read fails.
+func (pc *portClient) readBaudRate() int {
+	raw, err := pc.client.ReadHoldingRegisters(baudRateRegAddr, baudRateRegCount)
+	if err != nil || len(raw) < 4 {
+		return 0
+	}
+	return int(binary.BigEndian.Uint32(raw[:4]))
+}
+
+// writeBaudRate writes the RS485 baud rate to the device (holding registers 0x0020-0x0021).
+// The device must be restarted (e.g. via RebootCard or power cycle) for the new baud rate to take effect.
+func (pc *portClient) writeBaudRate(slave byte, baud int) error {
+	pc.mu.Lock()
+	defer pc.mu.Unlock()
+	setSlaveID(pc.handler, slave)
+
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf, uint32(baud))
+	_, err := pc.client.WriteMultipleRegisters(baudRateRegAddr, baudRateRegCount, buf)
 	if err == nil {
 		time.Sleep(pc.operationDelay) // RS485 delay
 	}

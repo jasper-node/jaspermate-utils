@@ -21,6 +21,8 @@ type Config struct {
 	DeviceID        string `yaml:"device_id"`
 	Type            string `yaml:"type,omitempty"`
 	ServeExternally bool   `yaml:"serve_externally,omitempty"`
+	// SerialBaud is the RS485/serial baud rate for local IO (default 115200)
+	SerialBaud int `yaml:"serial_baud,omitempty"`
 }
 
 var (
@@ -47,6 +49,12 @@ func GetDeviceID() string {
 	cfgMu.RLock()
 	defer cfgMu.RUnlock()
 	return cfg.DeviceID
+}
+
+func SetSerialBaud(baud int) {
+	cfgMu.Lock()
+	defer cfgMu.Unlock()
+	cfg.SerialBaud = baud
 }
 
 func getConfigPath() string {
@@ -111,6 +119,9 @@ func createDefaultConfig(path string) error {
 		return err
 	}
 	cfg.DeviceID = uuid
+	if cfg.SerialBaud <= 0 {
+		cfg.SerialBaud = 115200
+	}
 	return saveConfigLocked(path)
 }
 
