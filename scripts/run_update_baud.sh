@@ -23,7 +23,7 @@ error() {
 }
 
 info() {
-  echo "[INFO] $1"
+  echo "[INFO] $1" >&2
 }
 
 get_arch_asset_suffix() {
@@ -68,8 +68,8 @@ main() {
   local tmp_bin
   tmp_bin="$(mktemp)"
 
-  if ! curl -sL --fail "${url}" -o "${tmp_bin}"; then
-    error "Failed to download update-baud binary."
+  if ! curl -L --fail --show-error "${url}" -o "${tmp_bin}"; then
+    error "Failed to download update-baud binary from ${url}"
     rm -f "${tmp_bin}"
     exit 1
   fi
