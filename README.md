@@ -60,6 +60,31 @@ curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/hea
 
 Supports Linux amd64 and arm64. The service runs as `jm-utils` and listens on port 9080 (HTTP) and 9081 (TCP).
 
+### One-off: update JasperMate IO baud rate
+
+For boards still at factory default baud (e.g. 9600), you can use the `update-baud` helper script without worrying about architecture:
+
+```bash
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/run_update_baud.sh \
+  | bash -s -- -baud=115200
+```
+
+- **Detects arch automatically** (amd64 vs arm64)
+- **Downloads the matching `update-baud` binary** from the latest GitHub release
+- **Forwards any flags** after `--` directly to `update-baud`
+
+Examples:
+
+```bash
+# Simplest: just change all default slaves to 115200 on /dev/ttyS7
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/run_update_baud.sh \
+  | bash -s -- -baud=115200
+
+# Explicit port, current baud, and slave IDs
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/run_update_baud.sh \
+  | bash -s -- -port=/dev/ttyS7 -current=9600 -baud=115200 -slaves=1,2,3,4,5
+```
+
 ## Deployment
 
 - Single Go binary; no embedded HTML/CSS/JS.
