@@ -85,7 +85,7 @@ get_installed_version() {
 }
 
 uninstall_app() {
-    info "Starting ControlMate Utils uninstallation..."
+    info "Starting JasperMate Utils uninstallation..."
 
     if systemctl list-units --full -all | grep -Fq "${SERVICE_NAME}.service"; then
         info "Stopping and disabling ${SERVICE_NAME} service..."
@@ -141,7 +141,7 @@ uninstall_app() {
     fi
 
     echo
-    echo -e "${C_GREEN}✔ ControlMate Utils has been uninstalled successfully.${C_RESET}"
+    echo -e "${C_GREEN}✔ JasperMate Utils has been uninstalled successfully.${C_RESET}"
     exit 0
 }
 
@@ -172,7 +172,7 @@ fi
 IFS='|' read -r LATEST_VERSION DOWNLOAD_URL <<< "$VERSION_INFO"
 
 if [ "$INSTALLED_VERSION" != "not-installed" ]; then
-    info "ControlMate Utils is already installed. Version: ${C_CYAN}${INSTALLED_VERSION}${C_RESET}"
+    info "JasperMate Utils is already installed. Version: ${C_CYAN}${INSTALLED_VERSION}${C_RESET}"
     if [ "$INSTALLED_VERSION" == "$LATEST_VERSION" ]; then
         info "You are already running the latest version. Exiting."
         exit 0
@@ -251,14 +251,14 @@ if [ "$INSTALLED_VERSION" != "not-installed" ]; then
 fi
 
 # --- Fresh Installation Process ---
-info "Starting new ControlMate Utils installation..."
+info "Starting new JasperMate Utils installation..."
 info "Latest version found: ${C_CYAN}${LATEST_VERSION}${C_RESET}"
 
 info "Creating application directory at ${APP_DIR}..."
 mkdir -p "${APP_DIR}"
 
 TMP_FILE=$(mktemp)
-info "Downloading ControlMate Utils binary to temporary file..."
+info "Downloading JasperMate Utils binary to temporary file..."
 if ! curl -sL --fail "${DOWNLOAD_URL}" -o "${TMP_FILE}"; then
     error "Failed to download the binary."
     rm -f "${TMP_FILE}"

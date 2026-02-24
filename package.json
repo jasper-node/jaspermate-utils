@@ -1,6 +1,6 @@
 {
   "name": "jaspermate-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IO manager for JasperMate",
   "scripts": {
     "test": "go test ./...",

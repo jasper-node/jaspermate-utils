@@ -9,7 +9,7 @@ const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const currentVersion = packageJson.version;
 const tagName = `v${currentVersion}`;
 
-  console.log(`Checking if version ${currentVersion} is already released...`);
+console.log(`Checking if version ${currentVersion} is already released...`);
 
 try {
   // Check for uncommitted changes
@@ -63,17 +63,36 @@ try {
   console.log('🔨 Building application for both architectures...');
   execSync('npm run build', { stdio: 'inherit' });
 
-  // Verify build outputs exist
+  // Verify main jm-utils build outputs exist
   const amd64BinaryPath = './release/jm-utils-linux-amd64';
   const arm64BinaryPath = './release/jm-utils-linux-arm64';
-  
+
   if (!fs.existsSync(amd64BinaryPath)) {
     console.error('❌ Build failed: AMD64 binary not found at', amd64BinaryPath);
     process.exit(1);
   }
-  
+
   if (!fs.existsSync(arm64BinaryPath)) {
     console.error('❌ Build failed: ARM64 binary not found at', arm64BinaryPath);
+    process.exit(1);
+  }
+
+  // Build update-baud helper for both architectures
+  console.log('🔨 Building update-baud for both architectures...');
+  execSync('GOOS=linux GOARCH=amd64 go build -o ./release/update-baud-linux-amd64 ./cmd/update-baud', { stdio: 'inherit' });
+  execSync('GOOS=linux GOARCH=arm64 go build -o ./release/update-baud-linux-arm64 ./cmd/update-baud', { stdio: 'inherit' });
+
+  // Verify update-baud build outputs exist
+  const updateBaudAmd64Path = './release/update-baud-linux-amd64';
+  const updateBaudArm64Path = './release/update-baud-linux-arm64';
+
+  if (!fs.existsSync(updateBaudAmd64Path)) {
+    console.error('❌ Build failed: AMD64 update-baud binary not found at', updateBaudAmd64Path);
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(updateBaudArm64Path)) {
+    console.error('❌ Build failed: ARM64 update-baud binary not found at', updateBaudArm64Path);
     process.exit(1);
   }
 
@@ -94,18 +113,21 @@ Network and resource management utility for JasperMate PC.
 curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
 \`\`\`
 
-The application will start on port 9080.`;
+The application will start on port 9080.
+
+### Optional helper: update-baud
+This release also includes \`update-baud\` (for both amd64 and arm64), a one-off tool to set the baud rate on JasperMate IO cards before first use.`;
 
   // Create GitHub release
   console.log('🚀 Creating GitHub release...');
-  
+
   // Write release notes to a temporary file to avoid shell escaping issues
   const notesFile = './release-notes.tmp';
   fs.writeFileSync(notesFile, releaseNotes);
-  
+
   try {
-    execSync(`gh release create ${tagName} ${amd64BinaryPath} ${arm64BinaryPath} --title "JasperMate Utils ${currentVersion}" --notes-file ${notesFile} --latest`, { 
-      stdio: 'inherit' 
+    execSync(`gh release create ${tagName} ${amd64BinaryPath} ${arm64BinaryPath} ${updateBaudAmd64Path} ${updateBaudArm64Path} --title "JasperMate Utils ${currentVersion}" --notes-file ${notesFile} --latest`, {
+      stdio: 'inherit'
     });
   } finally {
     // Clean up temporary file
