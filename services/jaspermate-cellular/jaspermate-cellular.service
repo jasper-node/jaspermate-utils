@@ -1,0 +1,15 @@
+[Unit]
+Description=Jaspermate Cellular Data Connection
+After=ModemManager.service
+Before=jaspernode.service
+Wants=ModemManager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/jaspermate-cellular start
+ExecStop=/usr/local/bin/jaspermate-cellular stop
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

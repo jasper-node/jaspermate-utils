@@ -1,0 +1,25 @@
+# Jaspermate Edge PC - Cellular Configuration
+#
+# APN (Access Point Name)
+#   Leave empty to use modem's default profile (works for many carriers).
+#   Set explicitly if your carrier requires it.
+#   Examples:
+#     Telstra (AU):   telstra.internet
+#     Optus (AU):     yesinternet
+#     Vodafone (AU):  live.vodafone.com
+#     T-Mobile (US):  fast.t-mobile.com
+#     AT&T (US):      broadband
+APN=
+
+# SIM PIN (leave empty if no PIN is set on the SIM)
+PIN=
+
+# Route priority: lower number = higher priority
+#   50  = prefer cellular over everything
+#   100 = prefer cellular over WiFi (metric 600) but not wired WAN
+#   700 = cellular as fallback only (WiFi metric is 600)
+ROUTE_METRIC=100
+
+# Feature flags (yes/no) - disabled by default on new hardware
+VOICE_ENABLE=no
+GPS_ENABLE=no

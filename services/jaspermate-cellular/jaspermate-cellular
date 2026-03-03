@@ -1,0 +1,252 @@
+#!/bin/bash
+# jaspermate-cellular - Manage cellular data connection via QMI
+# Quectel EG25 modem over qmi_wwan_q driver
+# Usage: jaspermate-cellular {start|stop|status}
+
+set -euo pipefail
+
+CONFIG="/etc/jaspermate/config"
+QMI_DEV="/dev/cdc-wdm0"
+NET_IF="usb0"
+STATE_DIR="/run/jaspermate"
+STATE_FILE="$STATE_DIR/cellular.state"
+QMICLI="qmicli -d $QMI_DEV --device-open-qmi"
+
+# Defaults
+APN=""
+PIN=""
+ROUTE_METRIC=100
+
+log() { echo "[jaspermate-cellular] $*"; }
+die() { log "ERROR: $*" >&2; exit 1; }
+
+load_config() {
+    [ -f "$CONFIG" ] || die "Config not found: $CONFIG"
+    while IFS='=' read -r key val; do
+        key=$(echo "$key" | tr -d '[:space:]')
+        val=$(echo "$val" | tr -d '[:space:]')
+        case "$key" in
+            APN)           APN="$val" ;;
+            PIN)           PIN="$val" ;;
+            ROUTE_METRIC)  ROUTE_METRIC="$val" ;;
+        esac
+    done < <(grep -v '^\s*#' "$CONFIG" | grep -v '^\s*$')
+}
+
+wait_for_device() {
+    local tries=0
+    while [ ! -c "$QMI_DEV" ]; do
+        tries=$((tries + 1))
+        [ $tries -gt 30 ] && die "Timed out waiting for $QMI_DEV"
+        log "Waiting for $QMI_DEV ($tries/30)..."
+        sleep 2
+    done
+    log "QMI device ready: $QMI_DEV"
+}
+
+ensure_modem_online() {
+    local mode
+    mode=$($QMICLI --dms-get-operating-mode 2>/dev/null | grep 'Mode:' | awk -F"'" '{print $2}')
+    if [ "$mode" = "online" ]; then
+        log "Modem already online"
+        return 0
+    fi
+    log "Setting modem online..."
+    $QMICLI --dms-set-operating-mode=online 2>/dev/null || die "Failed to set modem online"
+    sleep 2
+}
+
+unlock_sim() {
+    [ -z "$PIN" ] && return 0
+    local pin_status
+    pin_status=$($QMICLI --dms-uim-get-pin-status 2>/dev/null | grep -A1 'PIN1' | grep 'Status:' | awk -F"'" '{print $2}')
+    if [ "$pin_status" = "enabled-not-verified" ]; then
+        log "Unlocking SIM with PIN..."
+        $QMICLI --dms-uim-verify-pin=PIN,"$PIN" 2>/dev/null || die "SIM PIN unlock failed"
+        sleep 2
+    else
+        log "SIM PIN status: $pin_status (no unlock needed)"
+    fi
+}
+
+wait_for_registration() {
+    local tries=0
+    while true; do
+        tries=$((tries + 1))
+        [ $tries -gt 30 ] && die "Timed out waiting for network registration"
+        local reg
+        reg=$($QMICLI --nas-get-serving-system 2>/dev/null | grep 'Registration state:' | head -1 | awk -F"'" '{print $2}')
+        if [ "$reg" = "registered" ]; then
+            local op
+            op=$($QMICLI --nas-get-serving-system 2>/dev/null | grep 'Description:' | head -1 | awk -F"'" '{print $2}')
+            log "Registered on: ${op:-unknown}"
+            return 0
+        fi
+        log "Waiting for registration ($tries/30, current: ${reg:-unknown})..."
+        sleep 2
+    done
+}
+
+# Convert dotted subnet mask to CIDR prefix length
+mask_to_prefix() {
+    local mask="$1" prefix=0
+    IFS='.' read -ra octets <<< "$mask"
+    for octet in "${octets[@]}"; do
+        while [ "$octet" -gt 0 ]; do
+            prefix=$((prefix + (octet & 1)))
+            octet=$((octet >> 1))
+        done
+    done
+    echo "$prefix"
+}
+
+start_wds() {
+    local args=""
+    if [ -n "$APN" ]; then
+        args="apn=$APN,ip-type=4"
+    else
+        args="ip-type=4"
+    fi
+
+    log "Starting WDS session (APN: ${APN:-auto})..."
+    local out
+    out=$($QMICLI --wds-start-network="$args" --client-no-release-cid 2>&1) || {
+        log "WDS start failed: $out"
+        if [ -n "$APN" ]; then
+            log "Retrying without APN..."
+            out=$($QMICLI --wds-start-network="ip-type=4" --client-no-release-cid 2>&1) || die "WDS start failed: $out"
+        else
+            die "WDS start failed"
+        fi
+    }
+
+    local pdh cid
+    pdh=$(echo "$out" | sed -n "s/.*handle.*'\(.*\)'.*/\1/p")
+    cid=$(echo "$out" | sed -n "s/.*CID.*'\(.*\)'.*/\1/p")
+    [ -z "$pdh" ] && die "No packet data handle returned"
+
+    mkdir -p "$STATE_DIR"
+    echo "PDH=$pdh" > "$STATE_FILE"
+    echo "CID=$cid" >> "$STATE_FILE"
+    log "WDS session started (PDH: $pdh, CID: $cid)"
+}
+
+configure_interface() {
+    log "Bringing up $NET_IF..."
+    ip link set "$NET_IF" up || die "Failed to bring up $NET_IF"
+    sleep 1
+
+    # Get IP settings directly from QMI - no dhclient, no resolv.conf side-effects
+    log "Getting IP config from QMI..."
+    local settings
+    settings=$($QMICLI --wds-get-current-settings 2>/dev/null) || die "Failed to get WDS settings"
+
+    local ip gw mask mtu dns1 dns2 prefix
+    ip=$(echo "$settings" | grep 'IPv4 address:' | awk '{print $NF}')
+    mask=$(echo "$settings" | grep 'IPv4 subnet mask:' | awk '{print $NF}')
+    gw=$(echo "$settings" | grep 'IPv4 gateway' | awk '{print $NF}')
+    mtu=$(echo "$settings" | grep 'MTU:' | awk '{print $NF}')
+    dns1=$(echo "$settings" | grep 'IPv4 primary DNS:' | awk '{print $NF}')
+    dns2=$(echo "$settings" | grep 'IPv4 secondary DNS:' | awk '{print $NF}')
+
+    [ -z "$ip" ] && die "No IP address from QMI"
+    prefix=$(mask_to_prefix "$mask")
+
+    # Configure interface
+    ip addr flush dev "$NET_IF" 2>/dev/null || true
+    ip addr add "${ip}/${prefix}" dev "$NET_IF"
+    [ -n "$mtu" ] && ip link set "$NET_IF" mtu "$mtu"
+    log "IP address: ${ip}/${prefix} (MTU: ${mtu:-default})"
+
+    # Default route with configurable metric
+    if [ -n "$gw" ]; then
+        ip route add default via "$gw" dev "$NET_IF" metric "$ROUTE_METRIC" 2>/dev/null || true
+        log "Default route via $gw metric $ROUTE_METRIC"
+    fi
+
+    # Save DNS to state (does NOT touch /etc/resolv.conf)
+    [ -n "$dns1" ] && echo "DNS1=$dns1" >> "$STATE_FILE"
+    [ -n "$dns2" ] && echo "DNS2=$dns2" >> "$STATE_FILE"
+    log "Carrier DNS: ${dns1:-none} ${dns2:-none} (not written to resolv.conf)"
+}
+
+do_start() {
+    log "=== Starting cellular data ==="
+    load_config
+    wait_for_device
+    ensure_modem_online
+    unlock_sim
+    wait_for_registration
+    start_wds
+    configure_interface
+    log "=== Cellular data UP ==="
+}
+
+do_stop() {
+    log "=== Stopping cellular data ==="
+
+    # Flush interface config
+    ip addr flush dev "$NET_IF" 2>/dev/null || true
+    ip link set "$NET_IF" down 2>/dev/null || true
+
+    # Stop WDS session
+    if [ -f "$STATE_FILE" ]; then
+        . "$STATE_FILE"
+        if [ -n "${PDH:-}" ] && [ -n "${CID:-}" ]; then
+            log "Stopping WDS (PDH: $PDH, CID: $CID)..."
+            $QMICLI --wds-stop-network="$PDH" --client-cid="$CID" 2>/dev/null || true
+        fi
+        rm -f "$STATE_FILE"
+    fi
+
+    log "=== Cellular data DOWN ==="
+}
+
+do_status() {
+    load_config
+    echo "--- Config ---"
+    echo "  APN:          ${APN:-auto}"
+    echo "  ROUTE_METRIC: $ROUTE_METRIC"
+    echo ""
+
+    if [ ! -c "$QMI_DEV" ]; then
+        echo "--- Modem: NOT DETECTED ---"
+        return 1
+    fi
+
+    echo "--- Modem ---"
+    $QMICLI --dms-get-operating-mode 2>/dev/null | grep 'Mode:' | sed 's/^/  /'
+    echo ""
+
+    echo "--- Signal ---"
+    $QMICLI --nas-get-signal-info 2>/dev/null | grep -E 'RSSI|RSRP|SNR' | sed 's/^/  /'
+    echo ""
+
+    echo "--- Network ---"
+    $QMICLI --nas-get-serving-system 2>/dev/null | grep -E 'Registration|Description' | head -2 | sed 's/^/  /'
+    echo ""
+
+    echo "--- Interface ($NET_IF) ---"
+    if ip link show "$NET_IF" 2>/dev/null | grep -q 'state UP\|state UNKNOWN'; then
+        ip -4 addr show "$NET_IF" 2>/dev/null | grep inet | sed 's/^/  /'
+        echo "  Route:"
+        ip route show dev "$NET_IF" 2>/dev/null | sed 's/^/    /'
+    else
+        echo "  DOWN"
+    fi
+    echo ""
+
+    if [ -f "$STATE_FILE" ]; then
+        echo "--- Session ---"
+        cat "$STATE_FILE" | sed 's/^/  /'
+    else
+        echo "--- Session: NONE ---"
+    fi
+}
+
+case "${1:-}" in
+    start)  do_start ;;
+    stop)   do_stop ;;
+    status) do_status ;;
+    *)      echo "Usage: jaspermate-cellular {start|stop|status}"; exit 1 ;;
+esac

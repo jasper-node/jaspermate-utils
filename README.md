@@ -85,6 +85,64 @@ curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/hea
   | bash -s -- -port=/dev/ttyS7 -current=9600 -baud=115200 -slaves=1,2,3,4,5
 ```
 
+## Cellular Data Service
+
+The `jaspermate-cellular` service provides automatic cellular internet via the Quectel EG25 LTE modem using QMI. It connects at boot and works with any GSM provider.
+
+### Install (standalone)
+
+```bash
+# From a repo checkout on the target device:
+cd services/jaspermate-cellular && sudo bash install.sh
+
+# Or remotely via curl:
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/main/services/jaspermate-cellular/install.sh | sudo bash
+```
+
+### Configure
+
+Edit `/etc/jaspermate/config`:
+
+```ini
+APN=telstra.internet   # carrier APN (leave empty for modem default)
+PIN=                    # SIM PIN if required
+ROUTE_METRIC=100        # 50=prefer cellular, 100=over WiFi, 700=fallback only
+VOICE_ENABLE=no         # reserved for future intercom support
+GPS_ENABLE=no           # reserved for future GPS support
+```
+
+### Usage
+
+```bash
+sudo jaspermate-cellular start    # connect
+sudo jaspermate-cellular stop     # disconnect
+sudo jaspermate-cellular status   # show signal, IP, route, session
+
+sudo systemctl start jaspermate-cellular   # via systemd
+sudo systemctl stop jaspermate-cellular
+journalctl -u jaspermate-cellular -f       # live logs
+```
+
+### How it works
+
+1. Waits for the QMI control device (`/dev/cdc-wdm0`) to appear
+2. Ensures the modem is online and registered on the network
+3. Starts a QMI WDS data session via `qmicli --device-open-qmi`
+4. Configures `usb0` with IP/gateway/MTU from QMI (no dhclient — does not touch `/etc/resolv.conf`)
+5. Adds a default route with the configured metric
+
+### Uninstall
+
+```bash
+curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/main/services/jaspermate-cellular/install.sh | sudo bash -s -- uninstall
+```
+
+### Requirements
+
+- Quectel EG25 modem (USB ID `2c7c:0125`) with `qmi_wwan_q` driver
+- `libqmi-utils` package (installed automatically by `install.sh`)
+- `ModemManager` service running (for modem power management)
+
 ## Deployment
 
 - Single Go binary; no embedded HTML/CSS/JS.
