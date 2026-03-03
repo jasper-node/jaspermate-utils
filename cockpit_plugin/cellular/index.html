@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>JasperMate SIM</title>
+  <link href="../base1/cockpit.css" rel="stylesheet">
+  <link href="jaspermate-cellular.css" rel="stylesheet">
+</head>
+<body>
+  <div id="jmc-loading" class="jmc-loading" aria-live="polite">
+    <div class="jmc-loading-spinner"></div>
+    <p class="jmc-loading-text">Loading…</p>
+  </div>
+  <div class="container-fluid">
+    <h1>JasperMate SIM</h1>
+    <div class="jmc-toolbar">
+      <span id="jmc-status" class="jmc-status">Cellular modem configuration</span>
+    </div>
+    <div class="jmc-cards">
+
+      <!-- Service Status Card -->
+      <div class="jmc-card">
+        <div class="jmc-card-header">
+          <div class="jmc-card-header-inner">
+            <div class="jmc-card-title">Service Status</div>
+            <div class="jmc-card-subtitle">jaspermate-cellular.service</div>
+          </div>
+          <span id="jmc-svc-indicator" class="jmc-svc-indicator jmc-svc-unknown"></span>
+        </div>
+        <div class="jmc-card-body">
+          <div class="jmc-svc-row">
+            <span class="jmc-svc-label">Status</span>
+            <span id="jmc-svc-state" class="jmc-svc-value">--</span>
+          </div>
+          <div class="jmc-svc-row">
+            <span class="jmc-svc-label">Since</span>
+            <span id="jmc-svc-since" class="jmc-svc-value">--</span>
+          </div>
+          <div class="jmc-btn-row">
+            <button type="button" id="jmc-btn-restart" class="jmc-btn-primary" disabled>Restart Service</button>
+            <button type="button" id="jmc-btn-stop" class="jmc-btn-danger" disabled>Stop</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Card -->
+      <div class="jmc-card">
+        <div class="jmc-card-header">
+          <div class="jmc-card-header-inner">
+            <div class="jmc-card-title">Configuration</div>
+            <div class="jmc-card-subtitle">/etc/jaspermate/config</div>
+          </div>
+        </div>
+        <div class="jmc-card-body">
+          <form id="jmc-config-form" autocomplete="off">
+            <div class="jmc-form-group">
+              <label for="jmc-apn" class="jmc-form-label">APN</label>
+              <input type="text" id="jmc-apn" class="jmc-form-input" placeholder="Leave empty for carrier default" autocomplete="off">
+              <span class="jmc-form-hint">Access Point Name. Leave empty to use the modem's default profile.</span>
+            </div>
+            <div class="jmc-form-group">
+              <label for="jmc-pin" class="jmc-form-label">SIM PIN</label>
+              <input type="password" id="jmc-pin" class="jmc-form-input" placeholder="Leave empty if no PIN" autocomplete="off">
+              <span class="jmc-form-hint">Only required if the SIM card has a PIN set.</span>
+            </div>
+            <div class="jmc-form-group">
+              <label for="jmc-metric" class="jmc-form-label">Route Metric</label>
+              <input type="number" id="jmc-metric" class="jmc-form-input jmc-form-input-narrow" min="1" max="9999" step="1" value="100">
+              <span class="jmc-form-hint">Lower = higher priority. WiFi is 600. Use 50 to prefer cellular, 700 for fallback only.</span>
+            </div>
+            <div id="jmc-feedback" class="jmc-feedback jmc-feedback-hidden"></div>
+            <div class="jmc-form-actions">
+              <button type="button" id="jmc-btn-save-only" class="jmc-btn-secondary">Save Only</button>
+              <button type="submit" id="jmc-btn-save" class="jmc-btn-primary">Save &amp; Restart</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script src="../base1/cockpit.js"></script>
+  <script src="jaspermate-cellular.js"></script>
+</body>
+</html>

@@ -5,10 +5,11 @@ Before=jaspernode.service
 Wants=ModemManager.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/local/bin/jaspermate-cellular start
+Type=simple
+ExecStart=/usr/local/bin/jaspermate-cellular run
 ExecStop=/usr/local/bin/jaspermate-cellular stop
+Restart=on-failure
+RestartSec=30
 TimeoutStartSec=120
 
 [Install]

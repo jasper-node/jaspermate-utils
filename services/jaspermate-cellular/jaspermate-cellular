@@ -16,6 +16,7 @@ QMICLI="qmicli -d $QMI_DEV --device-open-qmi"
 APN=""
 PIN=""
 ROUTE_METRIC=100
+WATCHDOG_PING="gateway"
 
 log() { echo "[jaspermate-cellular] $*"; }
 die() { log "ERROR: $*" >&2; exit 1; }
@@ -29,6 +30,7 @@ load_config() {
             APN)           APN="$val" ;;
             PIN)           PIN="$val" ;;
             ROUTE_METRIC)  ROUTE_METRIC="$val" ;;
+            WATCHDOG_PING) WATCHDOG_PING="$val" ;;
         esac
     done < <(grep -v '^\s*#' "$CONFIG" | grep -v '^\s*$')
 }
@@ -164,7 +166,8 @@ configure_interface() {
         log "Default route via $gw metric $ROUTE_METRIC"
     fi
 
-    # Save DNS to state (does NOT touch /etc/resolv.conf)
+    # Save gateway and DNS to state (does NOT touch /etc/resolv.conf)
+    [ -n "$gw" ] && echo "GW=$gw" >> "$STATE_FILE"
     [ -n "$dns1" ] && echo "DNS1=$dns1" >> "$STATE_FILE"
     [ -n "$dns2" ] && echo "DNS2=$dns2" >> "$STATE_FILE"
     log "Carrier DNS: ${dns1:-none} ${dns2:-none} (not written to resolv.conf)"
@@ -244,9 +247,63 @@ do_status() {
     fi
 }
 
+get_ping_target() {
+    if [ "$WATCHDOG_PING" = "gateway" ]; then
+        if [ -f "$STATE_FILE" ]; then
+            grep '^GW=' "$STATE_FILE" | cut -d= -f2
+        fi
+    else
+        echo "$WATCHDOG_PING"
+    fi
+}
+
+do_run() {
+    # Trap for clean shutdown
+    trap 'do_stop; exit 0' SIGTERM SIGINT
+
+    # Initial connection must succeed
+    do_start
+
+    local fail_count=0
+    local ping_target
+    ping_target=$(get_ping_target)
+
+    if [ -z "$ping_target" ]; then
+        log "WARNING: No ping target, watchdog disabled. Sleeping."
+        while true; do sleep 3600; done
+    fi
+
+    log "Watchdog started (ping $ping_target every 30s)"
+
+    while true; do
+        sleep 30
+        if ping -I "$NET_IF" -c 3 -W 5 "$ping_target" > /dev/null 2>&1; then
+            fail_count=0
+        else
+            fail_count=$((fail_count + 1))
+            log "Ping $ping_target failed ($fail_count/3)"
+            if [ "$fail_count" -ge 3 ]; then
+                log "Connection lost, reconnecting..."
+                do_stop
+                # Run do_start in subshell so die() doesn't kill the watchdog
+                if (do_start); then
+                    fail_count=0
+                    ping_target=$(get_ping_target)
+                    log "Reconnected, watchdog resumed (ping $ping_target)"
+                else
+                    log "Reconnect failed, retrying in 60s..."
+                    fail_count=0
+                    sleep 60
+                fi
+            fi
+        fi
+    done
+}
+
 case "${1:-}" in
     start)  do_start ;;
+    run)    do_run ;;
     stop)   do_stop ;;
     status) do_status ;;
-    *)      echo "Usage: jaspermate-cellular {start|stop|status}"; exit 1 ;;
+    *)      echo "Usage: jaspermate-cellular {start|stop|run|status}"; exit 1 ;;
 esac

@@ -1,0 +1,430 @@
+/* JasperMate Cellular */
+
+:root {
+  --io-bg: #f8fafc;
+  --io-fg: #0f172a;
+  --io-muted: #64748b;
+  --io-muted-bg: #f1f5f9;
+  --io-border: #e2e8f0;
+  --io-card: #ffffff;
+  --io-green: #22c55e;
+  --io-red: #ef4444;
+  --io-orange: #f97316;
+  --io-primary: #3b82f6;
+}
+
+/* Loading overlay */
+.jmc-loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--io-bg);
+  z-index: 1000;
+}
+
+.jmc-loading.jmc-loading-hidden {
+  display: none;
+}
+
+.jmc-loading-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--io-border);
+  border-top-color: var(--io-primary);
+  border-radius: 50%;
+  animation: jmc-spin 0.8s linear infinite;
+}
+
+.jmc-loading-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--io-muted);
+}
+
+@keyframes jmc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toolbar */
+.jmc-toolbar {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.jmc-status {
+  font-size: 0.875rem;
+  color: var(--io-muted);
+}
+
+/* Cards grid */
+.jmc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.jmc-card {
+  border-radius: 0.5rem;
+  border: 1px solid var(--io-border);
+  background: var(--io-card);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.jmc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: rgba(241, 245, 249, 0.5);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--io-border);
+}
+
+.jmc-card-header-inner {
+  flex: 1;
+}
+
+.jmc-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--io-fg);
+  margin: 0;
+}
+
+.jmc-card-subtitle {
+  font-size: 0.75rem;
+  font-family: ui-monospace, monospace;
+  color: var(--io-muted);
+  margin-top: 0.25rem;
+}
+
+.jmc-card-body {
+  padding: 1.25rem;
+  flex: 1;
+}
+
+/* Service status indicator */
+.jmc-svc-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.jmc-svc-active {
+  background-color: var(--io-green);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
+
+.jmc-svc-failed {
+  background-color: var(--io-red);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.jmc-svc-inactive {
+  background-color: var(--io-muted);
+}
+
+.jmc-svc-unknown {
+  background-color: var(--io-border);
+  animation: jmc-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes jmc-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Service status rows */
+.jmc-svc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--io-border);
+}
+
+.jmc-svc-row:last-of-type {
+  border-bottom: none;
+}
+
+.jmc-svc-label {
+  font-size: 0.875rem;
+  color: var(--io-muted);
+}
+
+.jmc-svc-value {
+  font-size: 0.875rem;
+  font-family: ui-monospace, monospace;
+  color: var(--io-fg);
+}
+
+.jmc-svc-value-active {
+  color: var(--io-green);
+  font-weight: 600;
+}
+
+.jmc-svc-value-failed {
+  color: var(--io-red);
+  font-weight: 600;
+}
+
+.jmc-svc-value-inactive {
+  color: var(--io-muted);
+}
+
+/* Button row */
+.jmc-btn-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Buttons */
+.jmc-btn-primary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--io-primary);
+  border-radius: 0.5rem;
+  background: var(--io-primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.jmc-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.jmc-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jmc-btn-secondary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--io-border);
+  border-radius: 0.5rem;
+  background: var(--io-card);
+  color: var(--io-fg);
+  cursor: pointer;
+}
+
+.jmc-btn-secondary:hover:not(:disabled) {
+  background: var(--io-muted-bg);
+}
+
+.jmc-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jmc-btn-danger {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--io-red);
+  border-radius: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--io-red);
+  cursor: pointer;
+}
+
+.jmc-btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.jmc-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form */
+.jmc-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.jmc-form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.jmc-form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--io-fg);
+  margin-bottom: 0.375rem;
+}
+
+.jmc-form-input {
+  display: block;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--io-border);
+  border-radius: 0.5rem;
+  background: var(--io-card);
+  color: var(--io-fg);
+  box-sizing: border-box;
+}
+
+.jmc-form-input:focus {
+  outline: none;
+  border-color: var(--io-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.jmc-form-input-narrow {
+  width: 8rem;
+}
+
+.jmc-form-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--io-muted);
+  margin-top: 0.25rem;
+}
+
+/* Toggle row for feature flags */
+.jmc-form-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--io-border);
+}
+
+.jmc-form-group-toggle:last-of-type {
+  border-bottom: none;
+}
+
+.jmc-toggle-info {
+  flex: 1;
+}
+
+.jmc-toggle-info .jmc-form-label {
+  margin-bottom: 0;
+}
+
+.jmc-toggle-info .jmc-form-hint {
+  margin-top: 0.125rem;
+}
+
+/* Toggle switch */
+.jmc-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.jmc-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.jmc-toggle-slider {
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  background: var(--io-muted-bg);
+  border: 1px solid var(--io-border);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+  display: block;
+}
+
+.jmc-toggle-slider::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--io-card);
+  border: 1px solid var(--io-border);
+  border-radius: 9999px;
+  transition: transform 0.2s ease;
+}
+
+.jmc-toggle-input:checked + .jmc-toggle-slider::after {
+  transform: translateX(1.25rem);
+}
+
+.jmc-toggle-input:checked + .jmc-toggle-slider {
+  background: var(--io-primary);
+  border-color: var(--io-primary);
+}
+
+/* Form actions */
+.jmc-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--io-border);
+}
+
+/* Feedback banner */
+.jmc-feedback {
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.jmc-feedback-hidden {
+  display: none;
+}
+
+.jmc-feedback-success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #15803d;
+}
+
+.jmc-feedback-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
+}
+
+.jmc-feedback-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #1d4ed8;
+}
+
+/* Error state for missing config/service */
+.jmc-error {
+  color: var(--io-red);
+  font-size: 0.875rem;
+}
+
+.jmc-not-installed {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--io-muted);
+  font-size: 0.875rem;
+}

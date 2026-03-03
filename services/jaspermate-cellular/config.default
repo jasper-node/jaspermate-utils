@@ -20,6 +20,7 @@ PIN=
 #   700 = cellular as fallback only (WiFi metric is 600)
 ROUTE_METRIC=100
 
-# Feature flags (yes/no) - disabled by default on new hardware
-VOICE_ENABLE=no
-GPS_ENABLE=no
+# Watchdog ping target for connectivity monitoring
+#   gateway = ping the carrier-assigned gateway (default, recommended)
+#   Or set a specific IP, e.g. 8.8.8.8
+WATCHDOG_PING=gateway

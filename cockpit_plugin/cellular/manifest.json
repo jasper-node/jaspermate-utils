@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "jaspermate-sim",
+  "title": "JasperMate SIM",
+  "tools": {
+    "jaspermate-sim": {
+      "label": "JasperMate SIM",
+      "path": "index.html"
+    }
+  }
+}
