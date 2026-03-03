@@ -1,16 +1,15 @@
 #!/bin/bash
 
 # ==============================================================================
-# jaspermate-utils_install.sh
-# v.1.2.0-1
+# install_utils.sh
 #
 # Installs, updates, or uninstalls the JasperMate Utils (jm-utils) binary as a systemd service.
 #
 # Usage (Install/Update):
-#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -
+#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_utils.sh | sudo -E bash -
 #
 # Usage (Uninstall):
-#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_to_linux.sh | sudo -E bash -s -- uninstall
+#   curl -sL https://raw.githubusercontent.com/jasper-node/jaspermate-utils/refs/heads/main/scripts/install_utils.sh | sudo -E bash -s -- uninstall
 #
 # ==============================================================================
 

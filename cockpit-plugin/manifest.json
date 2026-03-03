@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "jaspermate",
+  "title": "JasperMate",
+  "tools": {
+    "jaspermate": {
+      "label": "JasperMate",
+      "path": "index.html"
+    }
+  }
+}

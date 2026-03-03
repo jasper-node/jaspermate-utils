@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-JasperMate Utils is a Go backend that manages JasperMate IO cards via Modbus RTU over RS485 serial. It exposes a REST API on port 9080 and a TCP server on port 9081 for external automation clients. No frontend — the UI is a separate Cockpit plugin.
+JasperMate Utils is the backend + Cockpit plugin for JasperMate edge PCs. The Go backend manages IO cards via Modbus RTU over RS485 serial, exposing a REST API on port 9080 and a TCP server on port 9081. The Cockpit plugin (`cockpit-plugin/`) provides the web UI. A separate systemd service handles cellular connectivity.
 
 ## Build & Development Commands
 
