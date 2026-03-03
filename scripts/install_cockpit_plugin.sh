@@ -29,9 +29,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-info()  { echo "${GREEN}[INFO]${NC} $1"; }
-warn()  { echo "${YELLOW}[WARN]${NC} $1"; }
-error() { echo "${RED}[ERROR]${NC} $1"; }
+info()  { printf "${GREEN}[INFO]${NC} %s\n" "$1"; }
+warn()  { printf "${YELLOW}[WARN]${NC} %s\n" "$1"; }
+error() { printf "${RED}[ERROR]${NC} %s\n" "$1"; }
 
 # --- Uninstall ---
 case "${1:-}" in
@@ -41,7 +41,7 @@ case "${1:-}" in
       rm -rf "${INSTALL_DIR}"
       info "Removed ${INSTALL_DIR}"
       echo
-      echo "${GREEN}JasperMate Cockpit plugin has been uninstalled.${NC}"
+      printf "${GREEN}JasperMate Cockpit plugin has been uninstalled.${NC}\n"
     else
       warn "JasperMate Cockpit plugin is not installed."
     fi
@@ -58,12 +58,6 @@ fi
 # --- Install ---
 info "Installing JasperMate Cockpit plugin..."
 
-# Remove old jaspermate-io plugin if it exists (renamed to jaspermate)
-if [ -d "/usr/share/cockpit/jaspermate-io" ]; then
-  info "Removing old jaspermate-io plugin..."
-  rm -rf "/usr/share/cockpit/jaspermate-io"
-fi
-
 mkdir -p "${INSTALL_DIR}"
 
 for file in ${FILES}; do
@@ -76,6 +70,6 @@ for file in ${FILES}; do
 done
 
 echo
-echo "${GREEN}JasperMate Cockpit plugin installed to ${INSTALL_DIR}${NC}"
+printf "${GREEN}JasperMate Cockpit plugin installed to %s${NC}\n" "${INSTALL_DIR}"
 echo
 info "Open Cockpit in your browser to see the JasperMate plugin."

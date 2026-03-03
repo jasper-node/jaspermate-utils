@@ -23,7 +23,7 @@ INSTALLER_URL="https://raw.githubusercontent.com/${GITHUB_REPO}/refs/heads/${BRA
 
 # --- Root check ---
 if [ "$(id -u)" -ne 0 ]; then
-  echo "\033[0;31m[ERROR]\033[0m This installer must be run as root or with sudo."
+  printf "\033[0;31m[ERROR]\033[0m This installer must be run as root or with sudo.\n"
   exit 1
 fi
 
