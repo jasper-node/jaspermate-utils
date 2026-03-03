@@ -32,3 +32,6 @@ tmp/
 
 # Local Config
 .env*
+
+# Deno (not used in this project)
+deno.lock
