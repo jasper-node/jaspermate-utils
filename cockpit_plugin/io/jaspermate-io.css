@@ -1,5 +1,10 @@
 /* JasperMate IO */
 
+html, body {
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
 :root {
   --io-bg: #f8fafc;
   --io-fg: #0f172a;
